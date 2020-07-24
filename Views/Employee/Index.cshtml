@@ -1,0 +1,27 @@
+@using aspnetcore3_demo.Models;
+@model IEnumerable<Employee>
+
+<div class="row">
+  <div class="col-md-10 offset-md-2">
+      <table class="table">
+          <tr>
+              <th>姓</th>
+                 <th>名</th>
+                    <th>性别</th>
+                       <th>是否被解雇</th>
+          </tr>
+          @Html.DisplayForModel()
+      </table>
+  </div>
+</div>
+<div class="row">
+    <div class="col-md-4 offset-md-2">
+        <a asp-action="Add" asp-route-departmentId="@ViewBag.departmentId">新增</a>
+    </div>
+</div>
+<div>
+     <div class="col-md-4 offset-md-2" style="margin-top:40px;">
+        @* @await Component.InvokeAsync("CompanySummary",new{ title="员工页"}) *@
+        <vc:company-summary title="员工页"></vc:company-summary>
+    </div>
+</div>

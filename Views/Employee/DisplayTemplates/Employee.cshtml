@@ -1,0 +1,15 @@
+@model aspnetcore3_demo.Models.Employee
+<tr>
+    <td>@Model.FirstName</td>
+      <td>@Model.LastName</td>
+        <td>@Model.Gender</td>
+        <td>@(Model.Fired?"是":"否")</td>
+        <td>
+            @if(!Model.Fired)
+            {
+                 <a asp-action="Fire" asp-route-employeeId="@Model.Id">
+                  解雇
+                </a>
+            }
+        </td>
+</tr>

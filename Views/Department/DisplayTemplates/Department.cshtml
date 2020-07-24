@@ -1,0 +1,24 @@
+@using aspnetcore3_demo;
+@using Microsoft.Extensions.Options;
+@model aspnetcore3_demo.Models.Department;
+@inject IOptions<SelfOptionConfig> options;
+<tr>
+    <td>
+
+        @if(Model.EmployeeCount > options.Value.FontBold)
+        {
+           <strong> @Model.Name </strong>
+        }
+        else
+        {
+            @Model.Name
+        }
+    </td>
+      <td>@Model.Location</td>
+        <td>@Model.EmployeeCount</td>
+        <td>
+            <a asp-controller="Employee" asp-action="Index" asp-route-departmentId="@Model.Id">
+                查看部门员工
+            </a>
+        </td>
+</tr>

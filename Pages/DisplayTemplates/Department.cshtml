@@ -1,0 +1,14 @@
+@using aspnetcore3_demo;
+@model aspnetcore3_demo.Models.Department;
+<tr>
+    <td>
+    @Model.Name
+    </td>
+      <td>@Model.Location</td>
+        <td>@Model.EmployeeCount</td>
+         <td>
+            <a asp-page="Employee/EmployeeList" asp-route-departmentId="@Model.Id">
+                查看部门员工
+            </a>
+        </td>
+</tr>
