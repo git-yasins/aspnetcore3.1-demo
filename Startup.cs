@@ -4,29 +4,19 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-namespace aspnetcore3_demo
-{
+namespace aspnetcore3_demo {
     public class Startup {
         public Startup (IConfiguration configuration) {
             Configuration = configuration;
-            //var selfConfig = Configuration["SelfOptionConfig:FontBold"];
-
         }
 
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices (IServiceCollection services) {
-            //mvc模式
-            //services.AddControllersWithViews ();
-            //RazorPage模式
-            //services.AddRazorPages();
-            //Signa
-            services.AddControllers();
-            services.AddSingleton<IDepartmentService, DepartmentService> ();
-            services.AddSingleton<IEmployeeService, EmployeeService> ();
-            // 获取自定义配置对象
-            services.Configure<SelfOptionConfig>(Configuration.GetSection("SelfOptionConfig"));
+            services.AddControllers ();
+            services.AddSignalR ();
+            services.AddSingleton<CountService> ();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,12 +36,8 @@ namespace aspnetcore3_demo
             app.UseAuthorization ();
 
             app.UseEndpoints (endpoints => {
-                // mvc模式启用
-                // endpoints.MapControllerRoute (
-                //     name: "default",
-                //     pattern: "{controller=Department}/{action=Index}/{id?}");
-                //RazorPage模式启用
-                endpoints.MapRazorPages();
+                endpoints.MapControllers ();
+                endpoints.MapHub<CountHub> ("/counthub");
             });
         }
     }

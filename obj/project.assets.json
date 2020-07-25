@@ -17,6 +17,9 @@
           "lib/NETFramework40/DataAnnotationsExtensions.dll": {}
         }
       },
+      "Microsoft.AspNet.SignalR.Utils/2.4.1": {
+        "type": "package"
+      },
       "Microsoft.AspNetCore.Html.Abstractions/2.2.0": {
         "type": "package",
         "dependencies": {
@@ -93,6 +96,21 @@
         "lib/NETFramework40/DataAnnotationsExtensions.dll"
       ]
     },
+    "Microsoft.AspNet.SignalR.Utils/2.4.1": {
+      "sha512": "Q4FnAihW3HYWaQhY327IR2M14Xern1/nc4VPGdKQ1VOTUXssxad1eFmD+c3ZoGPIjGe06IjGV5RhfyUgxQD7MQ==",
+      "type": "package",
+      "path": "microsoft.aspnet.signalr.utils/2.4.1",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "microsoft.aspnet.signalr.utils.2.4.1.nupkg.sha512",
+        "microsoft.aspnet.signalr.utils.nuspec",
+        "tools/net40/signalr.exe",
+        "tools/net40/signalr.pdb",
+        "tools/net40/signalr.xml"
+      ]
+    },
     "Microsoft.AspNetCore.Html.Abstractions/2.2.0": {
       "sha512": "Y4rs5aMEXY8G7wJo5S3EEt6ltqyOTr/qOeZzfn+hw/fuQj5GppGckMY5psGLETo1U9hcT5MmAhaT5xtusM1b5g==",
       "type": "package",
@@ -143,6 +161,7 @@
     ".NETCoreApp,Version=v3.1": [
       "BuildBundlerMinifier >= 3.2.449",
       "DataAnnotationsExtensions >= 5.0.1.27",
+      "Microsoft.AspNet.SignalR.Utils >= 2.4.1",
       "Microsoft.AspNetCore.Razor >= 2.2.0"
     ]
   },
@@ -188,6 +207,10 @@
           "DataAnnotationsExtensions": {
             "target": "Package",
             "version": "[5.0.1.27, )"
+          },
+          "Microsoft.AspNet.SignalR.Utils": {
+            "target": "Package",
+            "version": "[2.4.1, )"
           },
           "Microsoft.AspNetCore.Razor": {
             "target": "Package",
