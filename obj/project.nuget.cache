@@ -1,26 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "92x3I600zAl6+yvBKVdIEVuuAOwuR47thXPKE3zEMSXa1FM8/J6udkcpYburSauquyUaT9av4Z1htgjEI+gS2A==",
+  "dgSpecHash": "H5vMuMx/J6ijiYMG5/BAkq5OOL2B1Ft+G25jAIq0lRqL4LbhztfN6hmHVOBDLvpsLZo11LHE6rkNisJmQoZ7Pg==",
   "success": true,
   "projectFilePath": "/Users/tangyaoxiang/Documents/Project/netcore/demo/aspnetcore3.1-demo/aspnetcore3.1-demo.csproj",
-  "expectedPackageFiles": [
-    "/Users/tangyaoxiang/.nuget/packages/buildbundlerminifier/3.2.449/buildbundlerminifier.3.2.449.nupkg.sha512",
-    "/Users/tangyaoxiang/.nuget/packages/dataannotationsextensions/5.0.1.27/dataannotationsextensions.5.0.1.27.nupkg.sha512",
-    "/Users/tangyaoxiang/.nuget/packages/microsoft.aspnet.signalr.utils/2.4.1/microsoft.aspnet.signalr.utils.2.4.1.nupkg.sha512",
-    "/Users/tangyaoxiang/.nuget/packages/microsoft.aspnetcore.html.abstractions/2.2.0/microsoft.aspnetcore.html.abstractions.2.2.0.nupkg.sha512",
-    "/Users/tangyaoxiang/.nuget/packages/microsoft.aspnetcore.razor/2.2.0/microsoft.aspnetcore.razor.2.2.0.nupkg.sha512",
-    "/Users/tangyaoxiang/.nuget/packages/system.text.encodings.web/4.5.0/system.text.encodings.web.4.5.0.nupkg.sha512"
-  ],
-  "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'DataAnnotationsExtensions 5.0.1.27' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework '.NETCoreApp,Version=v3.1'. This package may not be fully compatible with your project.",
-      "libraryId": "DataAnnotationsExtensions",
-      "targetGraphs": [
-        ".NETCoreApp,Version=v3.1"
-      ]
-    }
-  ]
+  "expectedPackageFiles": [],
+  "logs": []
 }

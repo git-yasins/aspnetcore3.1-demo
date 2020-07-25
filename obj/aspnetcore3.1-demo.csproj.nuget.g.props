@@ -12,8 +12,4 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgMicrosoft_AspNet_SignalR_Utils Condition=" '$(PkgMicrosoft_AspNet_SignalR_Utils)' == '' ">/Users/tangyaoxiang/.nuget/packages/microsoft.aspnet.signalr.utils/2.4.1</PkgMicrosoft_AspNet_SignalR_Utils>
-    <PkgBuildBundlerMinifier Condition=" '$(PkgBuildBundlerMinifier)' == '' ">/Users/tangyaoxiang/.nuget/packages/buildbundlerminifier/3.2.449</PkgBuildBundlerMinifier>
-  </PropertyGroup>
 </Project>

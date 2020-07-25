@@ -35,24 +35,6 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "dependencies": {
-            "BuildBundlerMinifier": {
-              "target": "Package",
-              "version": "[3.2.449, )"
-            },
-            "DataAnnotationsExtensions": {
-              "target": "Package",
-              "version": "[5.0.1.27, )"
-            },
-            "Microsoft.AspNet.SignalR.Utils": {
-              "target": "Package",
-              "version": "[2.4.1, )"
-            },
-            "Microsoft.AspNetCore.Razor": {
-              "target": "Package",
-              "version": "[2.2.0, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",
