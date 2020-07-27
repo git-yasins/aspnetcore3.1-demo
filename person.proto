@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+import "date.proto";
+
+//打包成My.Project命名空间
+//package my.project;
+
+//另一种设置C# 命名空间
+option csharp_namespace="My.WebApis";
+
+message Person{
+    int32 id = 1;
+    string name = 2;
+    float height = 3;
+    float weight = 4;
+    bytes avatar = 5;
+    string email = 6;
+    bool email_verified = 7;
+
+    repeated string phone_number =8;
+    // 保留字段或更新TAG
+    reserved 9,10,11 to 20;
+    reserved "foo","bar";
+
+    //枚举定义
+    enum Gender{
+        option allow_alias = true;//别名,不同枚举类型可以有相同值
+        NOT_SPECIFIED=0;
+        FEMALE=1;
+        MALE=2;
+        WOMAN=1;
+        MAN=2;
+
+        //枚举删除或保留定义
+        reserved 7,8,9 to 12, 20 to max;
+        reserved "BOY","GIRL";
+    }
+
+    Gender gender = 21;
+    Date bithday = 22;
+    repeated Address addess = 23;
+
+    //在消息里面定义其他消息
+    message Address{
+        string province = 1;
+        string city =2;
+        string zip_code =3;
+        string street = 4;
+        string number = 5;
+    }
+}
+
+

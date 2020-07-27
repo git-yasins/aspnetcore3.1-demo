@@ -1,0 +1,17 @@
+#1.grpc cs文件生成工具
+https://github.com/protocolbuffers/protobuf/releases/tag/v3.12.3
+protoc-3.12.3-osx-x86_64.zip
+
+#2.MAC GRPC设置环境变量
+https://www.cnblogs.com/plusUltra/p/10492532.html
+
+#3.生成GRPC c#代码
+protoc --csharp_out=grpc_cs first.proto 或者 protoc --csharp_out=grpc_cs *.proto
+
+
+#nuget 包
+dotnet add package Grpc.AspNetCore
+
+#vscode proto插件
+vscode-proto3
+clang-format
