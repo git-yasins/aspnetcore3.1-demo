@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+option csharp_namespace="aspnetcore3_demo";
+
+package API;
+
+//----------------Department--------------
+//定义服务
+service Departments{
+    //获取所有部门
+  rpc GetAll(GetAllDepartmentsRequest) returns (GetAllDepartmentsResponse) {}
+    //新增部门并返回
+  rpc Add(AddDepartmentRequest)returns (AddDepartmentResponse){}
+}
+
+message Department{
+    int32 id =1;
+    string name =2;
+    string location =3;
+    int32 employeeCount = 4;
+}
+
+//Get ALL Department
+message GetAllDepartmentsRequest {}
+message GetAllDepartmentsResponse{repeated Department Departments = 1;}//repeated集合类型
+//Add Department
+message AddDepartmentRequest { Department department = 1; }
+message AddDepartmentResponse { Department department = 1; }
+
+//----------------Employee--------------
+service Employees{
+    rpc GetByDepartmentId(GetByDepartmentIdRequest)returns(GetByDepartmentIdResponse){}
+    rpc AddEmployee(AddEmployeeRequest)returns (AddEmployeeResponse){}
+    rpc FireEmployee(FireEmployeeRequest)returns (FireEmployeeResponse){}
+}
+
+message Employee{
+    int32 id =1;
+    int32 departmentId=2;
+    string firstName=3;
+    string lastName =4;
+    Gender gender =5;
+    bool fired = 6;
+}
+enum Gender{
+   FEMALE = 0;
+   MALE = 1;
+}
+
+//GET Department ByID
+message GetByDepartmentIdRequest{int32 departmentId = 1;}
+message GetByDepartmentIdResponse{repeated Employee employees = 1;}
+
+//ADD EMPLOYEE
+message AddEmployeeRequest{Employee employee =1;}
+message AddEmployeeResponse{Employee employee =1;}
+
+//Fire Employee
+message FireEmployeeRequest{int32 id=1;}
+message FireEmployeeResponse{Employee employee =1;}
+
+
+
+
