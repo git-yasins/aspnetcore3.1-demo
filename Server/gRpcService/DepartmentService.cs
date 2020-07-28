@@ -19,7 +19,6 @@ namespace aspnetcore3_demo.gRpcService {
         }
 
         public override async Task<AddDepartmentResponse> Add (AddDepartmentRequest request, Grpc.Core.ServerCallContext context) {
-
             var department = await departmentRepositories.Add(request.Department);
             var result =  new AddDepartmentResponse{Department = department};
             return result;
