@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Entities;
-
+using aspnetcore3_demo.Parameters;
 namespace aspnetcore3_demo.Services {
     public interface ICompanyRepository {
-        Task<IEnumerable<Company>> GetCompaniesAsync ();
+        Task<IEnumerable<Company>> GetCompaniesAsync (CompanyDtoParameters parameters);
         Task<Company> GetCompanyAsync (Guid companyId);
         Task<IEnumerable<Company>> GetCompaniesAsync (IEnumerable<Guid> CompanyIds);
         void AddCompany (Company company);

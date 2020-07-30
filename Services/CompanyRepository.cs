@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Data;
 using aspnetcore3_demo.Entities;
+using aspnetcore3_demo.Parameters;
 using Microsoft.EntityFrameworkCore;
 
 namespace aspnetcore3_demo.Services {
@@ -57,8 +58,24 @@ namespace aspnetcore3_demo.Services {
             context.Employees.Remove (employee);
         }
 
-        public async Task<IEnumerable<Company>> GetCompaniesAsync () {
-            return await context.Companys.ToListAsync ();
+        public async Task<IEnumerable<Company>> GetCompaniesAsync (CompanyDtoParameters parameters) {
+            if (parameters == null) {
+                throw new ArgumentNullException (nameof (parameters));
+            }
+            if (string.IsNullOrEmpty (parameters.CompanyName) && string.IsNullOrWhiteSpace (parameters.Search)) {
+                return await context.Companys.ToListAsync ();
+            }
+            var queryExpression = context.Companys as IQueryable<Company>;
+            if (!string.IsNullOrWhiteSpace (parameters.CompanyName)) {
+                parameters.CompanyName = parameters.CompanyName.Trim ();
+                queryExpression = queryExpression.Where (x => x.Name == parameters.CompanyName);
+            }
+            if (!string.IsNullOrWhiteSpace (parameters.Search)) {
+                parameters.Search = parameters.Search.Trim ();
+                queryExpression = queryExpression
+                    .Where (x => x.Name.Contains (parameters.Search) || x.Introduction.Contains (parameters.Search));
+            }
+            return await queryExpression.ToListAsync ();
         }
 
         public async Task<IEnumerable<Company>> GetCompaniesAsync (IEnumerable<Guid> companyIds) {
