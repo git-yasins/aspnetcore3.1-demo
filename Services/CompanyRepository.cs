@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Data;
 using aspnetcore3_demo.Entities;
@@ -19,8 +20,10 @@ namespace aspnetcore3_demo.Services {
                 throw new ArgumentNullException (nameof (company));
             }
             company.Id = Guid.NewGuid ();
-            foreach (var employee in company.Employees) {
-                employee.Id = Guid.NewGuid ();
+            if (company.Employees != null) {
+                foreach (var employee in company.Employees) {
+                    employee.Id = Guid.NewGuid ();
+                }
             }
             context.Companys.Add (company);
         }

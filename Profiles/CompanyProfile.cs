@@ -8,6 +8,7 @@ namespace aspnetcore3_demo.Profiles {
         public CompanyProfile () {
             CreateMap<Company, CompanyDto> ()
                 .ForMember (desc => desc.CompanyName, opt => opt.MapFrom (sc => sc.Name));
+            CreateMap<CompanyAddDto,Company> ();
         }
     }
 }

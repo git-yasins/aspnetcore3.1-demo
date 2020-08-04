@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>aspnetcore3_demo</RootNamespace>
+    <!-- <GenerateDocumentationFile>true</GenerateDocumentationFile> -->
+     <DocumentationFile>bin\Debug\netcoreapp3.1\aspnetcore3_demo.xml</DocumentationFile>
+    <NoWarn>$(NoWarn);1591;1711:1572;1587</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +15,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
   </ItemGroup>
 
 

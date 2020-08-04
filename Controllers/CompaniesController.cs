@@ -1,13 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using aspnetcore3_demo.Entities;
 using aspnetcore3_demo.Models;
-using aspnetcore3_demo.Parameters;
 using aspnetcore3_demo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
-namespace aspnetcore3_demo.Controllers {
+namespace aspnetcore3_demo.Controllers
+{
+    /// <summary>
+    /// 公司API
+    /// </summary>
+    /// <returns></returns>
     /*
     ApiController 特性功能
     可以启动自动HTTP400响应
@@ -28,15 +32,13 @@ namespace aspnetcore3_demo.Controllers {
             this.mapper = mapper??throw new ArgumentNullException (nameof (mapper));
         }
 
-        //[HttpGet("api/Compaines")]   api/companies?CompanyName=Microsoft&Search=y
-        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompaines ([FromQuery] CompanyDtoParameters parameters) {
-            var compaines = await companyRepository.GetCompaniesAsync (parameters);
-            var companyDtos = mapper.Map<IEnumerable<CompanyDto>> (compaines);
-            return Ok (companyDtos);
-        }
-
         [HttpHead] //只返回头,不返回响应体
-        [HttpGet ("{companyId}")]
+        [HttpGet ("{companyId}", Name = nameof (GetCompany))]
+        /// <summary>
+        /// 根据公司ID获取公司信息
+        /// </summary>
+        /// <param name="companyId">公司ID</param>
+        /// <returns></returns>
         public async Task<ActionResult<CompanyDto>> GetCompany (Guid companyId) {
             var exists = await companyRepository.CompanyExistsAsync (companyId);
             if (!exists) {
@@ -47,6 +49,19 @@ namespace aspnetcore3_demo.Controllers {
                 return NotFound ();
             }
             return Ok (mapper.Map<CompanyDto> (company));
+        }
+        /// <summary>
+        /// 创建一条公司记录
+        /// </summary>
+        /// <param name="company">公司信息对象</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<ActionResult<CompanyDto>> CreateCompany ([FromBody] CompanyAddDto company) {
+            var entity = mapper.Map<Company> (company);
+            companyRepository.AddCompany (entity);
+            await companyRepository.SaveAsync ();
+            var ResultDto = mapper.Map<CompanyDto> (entity);
+            return CreatedAtRoute (nameof (GetCompany), new { companyId = ResultDto.Id }, ResultDto);
         }
     }
 }
