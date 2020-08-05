@@ -1,8 +1,15 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization.Json;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Entities;
+using aspnetcore3_demo.Helpers;
 using aspnetcore3_demo.Models;
+using aspnetcore3_demo.Parameters;
 using aspnetcore3_demo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +39,11 @@ namespace aspnetcore3_demo.Controllers {
             this.mapper = mapper??throw new ArgumentNullException (nameof (mapper));
         }
 
+        /// <summary>
+        /// 根据公司ID查询一条记录
+        /// </summary>
+        /// <param name="companyId">公司GUID</param>
+        /// <returns>返回CompanyDto</returns>
         [HttpHead] //只返回头,不返回响应体
         [HttpGet ("{companyId}", Name = nameof (GetCompany))]
         /// <summary>
@@ -50,6 +62,37 @@ namespace aspnetcore3_demo.Controllers {
             }
             return Ok (mapper.Map<CompanyDto> (company));
         }
+
+        /// <summary>
+        ///  分页,查询和搜索公司信息
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        [HttpGet (Name = nameof (GetCompanies))]
+        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompanies ([FromQuery] CompanyDtoParameters parameters) {
+            var companies = await companyRepository.GetCompaniesAsync (parameters);
+
+            var previousLink = companies.HasPrevious?CreateCompaniesResourceUri (parameters, ResourceUriType.PriviousPage) : null;
+            var nextLink = companies.HasNext?CreateCompaniesResourceUri (parameters, ResourceUriType.NextPage) : null;
+            //分页信息匿名类
+            var paginationMetadata = new {
+                totalCount = companies.TotalCount,
+                PagedSize = companies.PageSize,
+                currentPage = companies.CurrentPage,
+                totalPages = companies.TotalPages,
+                previousLink,
+                nextLink
+            };
+
+            //添加分页链接Headers
+            Response.Headers.Add ("X-Pagination", JsonSerializer.Serialize (paginationMetadata,
+                new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }//防止URI 其他字符转义
+            ));
+
+            var companyDtos = mapper.Map<IEnumerable<CompanyDto>> (companies);
+            return Ok (companyDtos);
+        }
+
         /// <summary>
         /// 创建一条公司记录
         /// </summary>
@@ -96,6 +139,41 @@ namespace aspnetcore3_demo.Controllers {
             await companyRepository.SaveAsync ();
 
             return NoContent ();
+        }
+
+        /// <summary>
+        ///  创建分页链接URI
+        /// </summary>
+        /// <param name="parameters">公司信息分页查询对象</param>
+        /// <param name="type">上一页|下一页 分页枚举</param>
+        /// <returns>公司数据分页Uri链接</returns>
+        private string CreateCompaniesResourceUri (CompanyDtoParameters parameters, ResourceUriType type) {
+            switch (type) {
+                case ResourceUriType.PriviousPage:
+                    return CreateLink (parameters, type);
+                case ResourceUriType.NextPage:
+                    return CreateLink (parameters, type);
+                default:
+                    return CreateLink (parameters, ResourceUriType.Default);
+            }
+        }
+
+        /// <summary>
+        /// 生成分页链接
+        /// </summary>
+        /// <param name="parameters">公司信息查询参数</param>
+        /// <param name="type">分页枚举 为NextPage+1 PriviousPage-1 否则默认</param>
+        /// <returns>分页链接</returns>
+        private string CreateLink (CompanyDtoParameters parameters, ResourceUriType type) {
+            return Url.Link (nameof (GetCompanies), new {
+                pageNumber =
+                    (type == ResourceUriType.PriviousPage) ?
+                    (parameters.PageNumber - 1) : (type == ResourceUriType.NextPage) ?
+                    (parameters.PageNumber + 1) : parameters.PageNumber,
+                    pageSize = parameters.PageSize,
+                    companyName = parameters.CompanyName,
+                    search = parameters.Search
+            });
         }
     }
 }

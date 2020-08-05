@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Data;
 using aspnetcore3_demo.Entities;
+using aspnetcore3_demo.Helpers;
 using aspnetcore3_demo.Parameters;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,13 +62,13 @@ namespace aspnetcore3_demo.Services {
             context.Employees.Remove (employee);
         }
 
-        public async Task<IEnumerable<Company>> GetCompaniesAsync (CompanyDtoParameters parameters) {
+        public async Task<PagedList<Company>> GetCompaniesAsync (CompanyDtoParameters parameters) {
             if (parameters == null) {
                 throw new ArgumentNullException (nameof (parameters));
             }
-            if (string.IsNullOrEmpty (parameters.CompanyName) && string.IsNullOrWhiteSpace (parameters.Search)) {
-                return await context.Companys.ToListAsync ();
-            }
+            // if (string.IsNullOrEmpty (parameters.CompanyName) && string.IsNullOrWhiteSpace (parameters.Search)) {
+            //     return await context.Companys.ToListAsync ();
+            // }
             var queryExpression = context.Companys as IQueryable<Company>;
             if (!string.IsNullOrWhiteSpace (parameters.CompanyName)) {
                 parameters.CompanyName = parameters.CompanyName.Trim ();
@@ -78,7 +79,12 @@ namespace aspnetcore3_demo.Services {
                 queryExpression = queryExpression
                     .Where (x => x.Name.Contains (parameters.Search) || x.Introduction.Contains (parameters.Search));
             }
-            return await queryExpression.ToListAsync ();
+            //分页
+            //queryExpression = queryExpression.Skip (parameters.PageSize * (parameters.PageNumber - 1)).Take (parameters.PageSize);
+
+            //return await queryExpression.ToListAsync ();
+
+            return await PagedList<Company>.Create (queryExpression, parameters.PageNumber, parameters.PageSize);
         }
 
         public async Task<IEnumerable<Company>> GetCompaniesAsync (IEnumerable<Guid> companyIds) {
