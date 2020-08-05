@@ -19,7 +19,10 @@ namespace aspnetcore3_demo.Data {
             modelBuilder.Entity<Employee> ().Property (x => x.FirstName).IsRequired ().HasMaxLength (50);
             modelBuilder.Entity<Employee> ().Property (x => x.LastName).IsRequired ().HasMaxLength (50);
 
-            modelBuilder.Entity<Employee> ().HasOne (x => x.Company).WithMany (x => x.Employees).HasForeignKey (x => x.CompanyId).OnDelete (DeleteBehavior.Restrict);
+            modelBuilder.Entity<Employee> ().HasOne (x => x.Company).WithMany (x => x.Employees)
+                .HasForeignKey (x => x.CompanyId)
+                .OnDelete (DeleteBehavior.Cascade); //级联删除 删除父表数据时,同时删除关联的子表数据
+            //.OnDelete (DeleteBehavior.Restrict);//不级联删除
 
             //创建测试种子数据
             modelBuilder.Entity<Company> ().HasData (

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Entities;
 using aspnetcore3_demo.Models;
@@ -6,8 +7,7 @@ using aspnetcore3_demo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
-namespace aspnetcore3_demo.Controllers
-{
+namespace aspnetcore3_demo.Controllers {
     /// <summary>
     /// 公司API
     /// </summary>
@@ -62,6 +62,40 @@ namespace aspnetcore3_demo.Controllers
             await companyRepository.SaveAsync ();
             var ResultDto = mapper.Map<CompanyDto> (entity);
             return CreatedAtRoute (nameof (GetCompany), new { companyId = ResultDto.Id }, ResultDto);
+        }
+
+        /// <summary>
+        /// 设置Options 谓词
+        /// 获取服务器支持的HTTP请求方法
+        /// 用来检查服务器的性能。例如：AJAX进行跨域请求时的预检，
+        /// 需要向另外一个域名的资源发送一个HTTP OPTIONS请求头，用以判断实际发送的请求是否安全。
+        /// </summary>
+        /// <returns></returns>
+        [HttpOptions]
+        public IActionResult GetComaniesOptions () {
+            Response.Headers.Add ("Allow", "GET,POST,OPTIONS");
+            return Ok ();
+        }
+        /// <summary>
+        /// 根据公司ID删除公司信息
+        /// </summary>
+        /// <param name="companyId">公司ID</param>
+        /// <returns>statusCode 204</returns>
+        [HttpDelete ("{companyId}")]
+        public async Task<IActionResult> DeleteCompany (Guid companyId) {
+            var companyEntity = await companyRepository.GetCompanyAsync (companyId);
+
+            if (companyEntity == null) {
+                return NotFound ();
+            }
+
+            //查询employee到dbContext进行追踪,以便根据父表删除子表数据
+            await companyRepository.GetEmployeesAsync (companyId, null, null);
+
+            companyRepository.DeleteCompany (companyEntity);
+            await companyRepository.SaveAsync ();
+
+            return NoContent ();
         }
     }
 }

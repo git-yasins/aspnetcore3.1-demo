@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Entities;
@@ -11,7 +9,8 @@ using aspnetcore3_demo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
-namespace aspnetcore3_demo.Controllers {
+namespace aspnetcore3_demo.Controllers
+{
     /// <summary>
     /// 公司集合操作
     /// </summary>
