@@ -27,6 +27,8 @@ namespace aspnetcore3._1_demo {
             services.AddDbContext<aspnetcore3_demo.Data.RoutineDBContext> (option => {
                 option.UseSqlite (Configuration["ConnectionStrings:Default"]);
             });
+            //注册对象属性映射服务
+            services.AddTransient<IPropertyMappingService, PropertyMappingService> ();
             services.AddAutoMapper (AppDomain.CurrentDomain.GetAssemblies ());
             services.AddControllers (options => {
                     //如果请求的内容为不支持的格式(xml),则返回406

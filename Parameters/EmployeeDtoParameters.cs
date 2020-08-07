@@ -1,44 +1,44 @@
-using System;
-
 namespace aspnetcore3_demo.Parameters {
     /// <summary>
-    /// 公司信息查询
+    /// 员工分页参数
     /// </summary>
-    public class CompanyDtoParameters {
+    public class EmployeeDtoParameters {
         /// <summary>
-        /// 最大页数
+        /// 最大条数
         /// </summary>
-        const int MaxPageSize = 20;
+        private const int MaxPageSize = 20;
         /// <summary>
-        /// 公司名称
+        /// 性别
         /// </summary>
         /// <value></value>
-        public string CompanyName { get; set; }
+        public string Gender { get; set; }
         /// <summary>
         /// 搜索条件
         /// </summary>
         /// <value></value>
-        public string Search { get; set; }
+        public string Q { get; set; }
         /// <summary>
-        /// 当前页
+        /// 当前第几页
         /// </summary>
         /// <value></value>
         public int PageNumber { get; set; } = 1;
-
+        /// <summary>
+        /// 默认5条
+        /// </summary>
         private int _pageSize = 5;
         /// <summary>
-        /// 显示条数
+        /// 每页多少条
         /// </summary>
         /// <value></value>
         public int PageSize {
-            get { return _pageSize; }
-            set { _pageSize = value > MaxPageSize ? MaxPageSize : value; }
+            get => _pageSize;
+            set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
         }
         /// <summary>
         /// 排序
         /// 默认按Name排序
         /// </summary>
         /// <value></value>
-        public string OrderBy { get; set; } = "companyName";
+        public string OrderBy { get; set; } = "name";
     }
 }

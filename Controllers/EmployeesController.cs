@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Entities;
 using aspnetcore3_demo.Models;
+using aspnetcore3_demo.Parameters;
 using aspnetcore3_demo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
@@ -30,15 +31,14 @@ namespace aspnetcore3_demo.Controllers {
         /// 根据公司ID获取公司下的员工信息
         /// </summary>
         /// <param name="companyId">公司ID</param>
-        /// <param name="genderDisplay">性别</param>
-        /// <param name="search">搜索条件</param>
+        /// <param name="parameters">查询条件</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployeesForCompany (Guid companyId, [FromQuery (Name = "gender")] string genderDisplay, string search) {
+        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployeesForCompany (Guid companyId, [FromQuery]EmployeeDtoParameters parameters) {
             if (!await companyRepository.CompanyExistsAsync (companyId)) {
                 return NotFound ();
             }
-            var employees = await companyRepository.GetEmployeesAsync (companyId, genderDisplay, search);
+            var employees = await companyRepository.GetEmployeesAsync (companyId, parameters);
             var employeesDto = mapper.Map<IEnumerable<EmployeeDto>> (employees);
             return Ok (employeesDto);
         }

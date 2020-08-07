@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.Serialization.Json;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -33,10 +30,12 @@ namespace aspnetcore3_demo.Controllers {
     public class CompaniesController : ControllerBase {
         private readonly ICompanyRepository companyRepository;
         private readonly IMapper mapper;
+        private readonly IPropertyMappingService propertyMappingService;
 
-        public CompaniesController (ICompanyRepository companyRepository, IMapper mapper) {
+        public CompaniesController (ICompanyRepository companyRepository, IMapper mapper, IPropertyMappingService propertyMappingService) {
             this.companyRepository = companyRepository??throw new ArgumentNullException (nameof (companyRepository));
             this.mapper = mapper??throw new ArgumentNullException (nameof (mapper));
+            this.propertyMappingService = propertyMappingService??throw new ArgumentNullException (nameof (propertyMappingService));
         }
 
         /// <summary>
@@ -70,6 +69,11 @@ namespace aspnetcore3_demo.Controllers {
         /// <returns></returns>
         [HttpGet (Name = nameof (GetCompanies))]
         public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompanies ([FromQuery] CompanyDtoParameters parameters) {
+
+            if (!propertyMappingService.ValidationMappingExistesFor<CompanyDto, Company> (parameters.OrderBy)) {
+                return BadRequest ();
+            }
+
             var companies = await companyRepository.GetCompaniesAsync (parameters);
 
             var previousLink = companies.HasPrevious?CreateCompaniesResourceUri (parameters, ResourceUriType.PriviousPage) : null;
@@ -86,7 +90,7 @@ namespace aspnetcore3_demo.Controllers {
 
             //添加分页链接Headers
             Response.Headers.Add ("X-Pagination", JsonSerializer.Serialize (paginationMetadata,
-                new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping }//防止URI 其他字符转义
+                new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping } //防止URI 其他字符转义
             ));
 
             var companyDtos = mapper.Map<IEnumerable<CompanyDto>> (companies);
@@ -133,7 +137,7 @@ namespace aspnetcore3_demo.Controllers {
             }
 
             //查询employee到dbContext进行追踪,以便根据父表删除子表数据
-            await companyRepository.GetEmployeesAsync (companyId, null, null);
+            await companyRepository.GetEmployeesAsync (companyId, new EmployeeDtoParameters ());
 
             companyRepository.DeleteCompany (companyEntity);
             await companyRepository.SaveAsync ();
@@ -166,7 +170,8 @@ namespace aspnetcore3_demo.Controllers {
         /// <returns>分页链接</returns>
         private string CreateLink (CompanyDtoParameters parameters, ResourceUriType type) {
             return Url.Link (nameof (GetCompanies), new {
-                pageNumber =
+                orderBy = parameters.OrderBy,
+                    pageNumber =
                     (type == ResourceUriType.PriviousPage) ?
                     (parameters.PageNumber - 1) : (type == ResourceUriType.NextPage) ?
                     (parameters.PageNumber + 1) : parameters.PageNumber,
