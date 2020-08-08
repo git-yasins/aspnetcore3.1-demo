@@ -31,15 +31,17 @@ namespace aspnetcore3_demo.Controllers {
         private readonly ICompanyRepository companyRepository;
         private readonly IMapper mapper;
         private readonly IPropertyMappingService propertyMappingService;
+        private readonly IPropertyCheckService propertyCheckService;
 
-        public CompaniesController (ICompanyRepository companyRepository, IMapper mapper, IPropertyMappingService propertyMappingService) {
+        public CompaniesController (ICompanyRepository companyRepository, IMapper mapper, IPropertyMappingService propertyMappingService, IPropertyCheckService propertyCheckService) {
             this.companyRepository = companyRepository??throw new ArgumentNullException (nameof (companyRepository));
             this.mapper = mapper??throw new ArgumentNullException (nameof (mapper));
             this.propertyMappingService = propertyMappingService??throw new ArgumentNullException (nameof (propertyMappingService));
+            this.propertyCheckService = propertyCheckService??throw new ArgumentNullException (nameof (propertyCheckService));
         }
 
         /// <summary>
-        /// 根据公司ID查询一条记录
+        /// /// 根据公司ID查询一条记录
         /// </summary>
         /// <param name="companyId">公司GUID</param>
         /// <returns>返回CompanyDto</returns>
@@ -49,17 +51,22 @@ namespace aspnetcore3_demo.Controllers {
         /// 根据公司ID获取公司信息
         /// </summary>
         /// <param name="companyId">公司ID</param>
+        /// <param name="fields">数据塑形字段</param>
         /// <returns></returns>
-        public async Task<ActionResult<CompanyDto>> GetCompany (Guid companyId) {
+        public async Task<ActionResult<CompanyDto>> GetCompany (Guid companyId, [FromQuery (Name = "fields")] string field) {
             var exists = await companyRepository.CompanyExistsAsync (companyId);
             if (!exists) {
                 return NotFound ();
+            }
+            if (!propertyCheckService.TypeHasProperties<CompanyDto> (field)) {
+                return BadRequest ();
             }
             var company = await companyRepository.GetCompanyAsync (companyId);
             if (company == null) {
                 return NotFound ();
             }
-            return Ok (mapper.Map<CompanyDto> (company));
+            var companydto = mapper.Map<CompanyDto> (company);
+            return Ok (companydto.ShapeData (field));
         }
 
         /// <summary>
@@ -68,12 +75,14 @@ namespace aspnetcore3_demo.Controllers {
         /// <param name="parameters"></param>
         /// <returns></returns>
         [HttpGet (Name = nameof (GetCompanies))]
-        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompanies ([FromQuery] CompanyDtoParameters parameters) {
+        public async Task<IActionResult> GetCompanies ([FromQuery] CompanyDtoParameters parameters) {
 
             if (!propertyMappingService.ValidationMappingExistesFor<CompanyDto, Company> (parameters.OrderBy)) {
                 return BadRequest ();
             }
-
+            if (!propertyCheckService.TypeHasProperties<CompanyDto> (parameters.Fields)) {
+                return BadRequest ();
+            }
             var companies = await companyRepository.GetCompaniesAsync (parameters);
 
             var previousLink = companies.HasPrevious?CreateCompaniesResourceUri (parameters, ResourceUriType.PriviousPage) : null;
@@ -94,7 +103,7 @@ namespace aspnetcore3_demo.Controllers {
             ));
 
             var companyDtos = mapper.Map<IEnumerable<CompanyDto>> (companies);
-            return Ok (companyDtos);
+            return Ok (companyDtos.ShapeData (parameters.Fields));
         }
 
         /// <summary>
@@ -170,11 +179,12 @@ namespace aspnetcore3_demo.Controllers {
         /// <returns>分页链接</returns>
         private string CreateLink (CompanyDtoParameters parameters, ResourceUriType type) {
             return Url.Link (nameof (GetCompanies), new {
-                orderBy = parameters.OrderBy,
-                    pageNumber =
+                pageNumber =
                     (type == ResourceUriType.PriviousPage) ?
                     (parameters.PageNumber - 1) : (type == ResourceUriType.NextPage) ?
                     (parameters.PageNumber + 1) : parameters.PageNumber,
+                    fields = parameters.Fields,
+                    orderBy = parameters.OrderBy,
                     pageSize = parameters.PageSize,
                     companyName = parameters.CompanyName,
                     search = parameters.Search

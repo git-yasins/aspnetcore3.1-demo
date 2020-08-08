@@ -29,6 +29,9 @@ namespace aspnetcore3._1_demo {
             });
             //注册对象属性映射服务
             services.AddTransient<IPropertyMappingService, PropertyMappingService> ();
+            //数据塑形字段检查
+            services.AddTransient<IPropertyCheckService,PropertyCheckService>();
+            //Dto-Model 映射
             services.AddAutoMapper (AppDomain.CurrentDomain.GetAssemblies ());
             services.AddControllers (options => {
                     //如果请求的内容为不支持的格式(xml),则返回406

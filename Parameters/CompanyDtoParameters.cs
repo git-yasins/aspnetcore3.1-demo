@@ -35,6 +35,12 @@ namespace aspnetcore3_demo.Parameters {
             set { _pageSize = value > MaxPageSize ? MaxPageSize : value; }
         }
         /// <summary>
+        /// 数据塑形指定的字段
+        /// </summary>
+        /// <value></value>
+        public string Fields { get; set; }
+
+        /// <summary>
         /// 排序
         /// 默认按Name排序
         /// </summary>
