@@ -183,15 +183,13 @@ namespace aspnetcore3_demo.Controllers {
         /// <summary>
         /// 创建一条公司记录(新增加破产日期属性的WEBAPI变更测试)
         /// </summary>
-        /// <param name="company">公司信息对象</param>
+        /// <param name="companyAddWithBankruptTimeDto">公司信息对象</param>
         /// <returns></returns>
-        [HttpPost (Name = nameof (CreateCompanyWithBankruptTime))]
-        //请求头输入匹配 Content-Type
+        [HttpPost (Name = nameof (CreateCompanyWithBankruptTime))] //请求头输入匹配 Content-Type
         [RequestHeaderMatchesMediaType ("Content-Type", "application/vnd.company.companyforcreationwithbankrupttime+json")]
-        //消费者
-        [Consumes ("application/vnd.company.companyforcreationwithbankrupttime+json")]
-        public async Task<ActionResult<CompanyDto>> CreateCompanyWithBankruptTime ([FromBody] CompanyAddWithBankruptTimeDto company) {
-            var entity = mapper.Map<Company> (company);
+        [Consumes ("application/vnd.company.companyforcreationwithbankrupttime+json")] //消费者
+        public async Task<ActionResult<CompanyDto>> CreateCompanyWithBankruptTime ([FromBody] CompanyAddWithBankruptTimeDto companyAddWithBankruptTimeDto) {
+            var entity = mapper.Map<Company> (companyAddWithBankruptTimeDto);
             companyRepository.AddCompany (entity);
             await companyRepository.SaveAsync ();
             var ResultDto = mapper.Map<CompanyDto> (entity);
@@ -203,7 +201,7 @@ namespace aspnetcore3_demo.Controllers {
             return CreatedAtRoute (nameof (GetCompany), new { companyId = linkedDict["Id"] }, linkedDict);
         }
 
-         /// <summary>
+        /// <summary>
         /// 创建一条公司记录
         /// </summary>
         /// <param name="company">公司信息对象</param>

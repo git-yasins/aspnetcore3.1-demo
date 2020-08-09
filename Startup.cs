@@ -91,6 +91,8 @@ namespace aspnetcore3._1_demo {
 
                 var xmlPath = Path.Combine (basePath, "aspnetcore3_demo.xml");
                 options.IncludeXmlComments (xmlPath, true); //第二个参数为TRUE表示显示控制器的注释
+                //options.CustomSchemaIds (c => c.FullName); //根据全名生成
+                options.ResolveConflictingActions (c => c.First ()); //解决同类型Action或重载的错误
             });
         }
 
