@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
+using aspnetcore3_demo.ActionConstraints;
 using aspnetcore3_demo.Entities;
 using aspnetcore3_demo.Helpers;
 using aspnetcore3_demo.Models;
@@ -12,6 +13,7 @@ using aspnetcore3_demo.Parameters;
 using aspnetcore3_demo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace aspnetcore3_demo.Controllers {
     /// <summary>
@@ -43,19 +45,35 @@ namespace aspnetcore3_demo.Controllers {
         }
 
         /// <summary>
-        /// /// 根据公司ID查询一条记录
+        ///  根据公司ID查询一条记录
         /// </summary>
         /// <param name="companyId">公司GUID</param>
         /// <returns>返回CompanyDto</returns>
         [HttpHead] //只返回头,不返回响应体
         [HttpGet ("{companyId}", Name = nameof (GetCompany))]
+        //局部mediaType媒体类型支持,第二个company代表company公司实体名
+        //数据自描述媒体说明 Vendor-Specific Media Type: 输出(Header-Accept)
+        [Produces ("application/json", //不带链接的部份属性
+            "application/vnd.company.hateoas+json", //带链接的部份属性
+            "application/vnd.company.company.friendly+json", //返回不带Links链接的部份属性
+            "application/vnd.company.company.friendly.hateoas+json", //返回带Links链接的部份属性
+            "application/vnd.company.company.full+json", //返回不带链接的全部属性
+            "application/vnd.company.company.full.hateoas+json" //返回带Links链接的全部属性
+        )]
         /// <summary>
         /// 根据公司ID获取公司信息
         /// </summary>
         /// <param name="companyId">公司ID</param>
         /// <param name="fields">数据塑形字段</param>
+        /// <param name="mediaType">从请求header取出Accept媒体类型</param>
         /// <returns></returns>
-        public async Task<IActionResult> GetCompany (Guid companyId, [FromQuery] string fields) {
+        public async Task<IActionResult> GetCompany (Guid companyId, [FromQuery] string fields, [FromHeader (Name = "Accept")] string mediaType) {
+
+            //判断媒体类型Accept,存在则返回值
+            if (!MediaTypeHeaderValue.TryParse (mediaType, out MediaTypeHeaderValue parseMediaType)) {
+                return BadRequest ();
+            }
+
             var exists = await companyRepository.CompanyExistsAsync (companyId);
             if (!exists) {
                 return NotFound ();
@@ -68,11 +86,45 @@ namespace aspnetcore3_demo.Controllers {
                 return NotFound ();
             }
 
-            var links = CreateLinksForCompany (companyId, fields);
-            var linkedDict = mapper.Map<CompanyDto> (company).ShapeData (fields) as IDictionary<string, object>;
-            linkedDict.Add ("links", links);
+            #region hateoas
+            //判断Headers头的Accept参数值是否包含hateoas媒体类型,如果包含则返回links链接,否则不添加links
+            var includeLinks = parseMediaType.SubTypeWithoutSuffix.EndsWith ("hateoas", StringComparison.InvariantCultureIgnoreCase);
+            IEnumerable<LinkDto> myLinks = new List<LinkDto> ();
+            if (includeLinks) {
+                myLinks = CreateLinksForCompany (companyId, fields);
+            }
 
-            return Ok (linkedDict);
+            var primaryMediaType = includeLinks ?
+                parseMediaType.SubTypeWithoutSuffix.Subsegment (0, parseMediaType.SubTypeWithoutSuffix.Length - 8) :
+                parseMediaType.SubTypeWithoutSuffix;
+
+            //full 返回所有属性
+            if (primaryMediaType == "vnd.company.company.full") {
+                var full = mapper.Map<CompanyFullDto> (company).ShapeData (fields) as IDictionary<string, object>;
+                if (includeLinks) {
+                    full.Add ("links", myLinks);
+                }
+                return Ok (full);
+            }
+
+            //frendly 返回部分属性
+            var friendly = mapper.Map<CompanyDto> (company).ShapeData (fields) as IDictionary<string, object>;
+            if (includeLinks) {
+                friendly.Add ("links", myLinks);
+            }
+
+            return Ok (friendly);
+
+            // if (parseMediaType.MediaType == "application/vnd.company.hateoas+json") {
+            //     var links = CreateLinksForCompany (companyId, fields);
+            //     var linkedDict = mapper.Map<CompanyDto> (company).ShapeData (fields) as IDictionary<string, object>;
+            //     linkedDict.Add ("links", links);
+
+            //     return Ok (linkedDict);
+            // }
+            #endregion
+
+            //return Ok (mapper.Map<CompanyDto> (company));
         }
 
         /// <summary>
@@ -129,11 +181,36 @@ namespace aspnetcore3_demo.Controllers {
         }
 
         /// <summary>
+        /// 创建一条公司记录(新增加破产日期属性的WEBAPI变更测试)
+        /// </summary>
+        /// <param name="company">公司信息对象</param>
+        /// <returns></returns>
+        [HttpPost (Name = nameof (CreateCompanyWithBankruptTime))]
+        //请求头输入匹配 Content-Type
+        [RequestHeaderMatchesMediaType ("Content-Type", "application/vnd.company.companyforcreationwithbankrupttime+json")]
+        //消费者
+        [Consumes ("application/vnd.company.companyforcreationwithbankrupttime+json")]
+        public async Task<ActionResult<CompanyDto>> CreateCompanyWithBankruptTime ([FromBody] CompanyAddWithBankruptTimeDto company) {
+            var entity = mapper.Map<Company> (company);
+            companyRepository.AddCompany (entity);
+            await companyRepository.SaveAsync ();
+            var ResultDto = mapper.Map<CompanyDto> (entity);
+
+            var links = CreateLinksForCompany (ResultDto.Id, null);
+            var linkedDict = ResultDto.ShapeData (null) as IDictionary<string, object>;
+            linkedDict.Add ("links", links);
+
+            return CreatedAtRoute (nameof (GetCompany), new { companyId = linkedDict["Id"] }, linkedDict);
+        }
+
+         /// <summary>
         /// 创建一条公司记录
         /// </summary>
         /// <param name="company">公司信息对象</param>
         /// <returns></returns>
         [HttpPost (Name = nameof (CreateCompany))]
+        [RequestHeaderMatchesMediaType ("Content-Type", "application/json", "application/vnd.company.companyforcreation+json")]
+        [Consumes ("application/json", "application/vnd.company.companyforcreation+json")]
         public async Task<ActionResult<CompanyDto>> CreateCompany ([FromBody] CompanyAddDto company) {
             var entity = mapper.Map<Company> (company);
             companyRepository.AddCompany (entity);
@@ -249,7 +326,7 @@ namespace aspnetcore3_demo.Controllers {
         /// <summary>
         /// 生成多个资源 HATEOAS 链接
         ///  </summary>
-        /// <param name="companyDtoParameters"></param>
+        /// <param name="companyDtoParameters">查询参数</param>
         /// <param name="hasPrevious">是否存在上一页</param>
         /// <param name="hasNext">是否存在下一页</param>
         /// <returns></returns>

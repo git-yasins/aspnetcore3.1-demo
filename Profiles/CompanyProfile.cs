@@ -8,7 +8,11 @@ namespace aspnetcore3_demo.Profiles {
         public CompanyProfile () {
             CreateMap<Company, CompanyDto> ()
                 .ForMember (desc => desc.CompanyName, opt => opt.MapFrom (sc => sc.Name));
-            CreateMap<CompanyAddDto,Company> ();
+            CreateMap<CompanyAddDto, Company> ();
+            //返回资源 输出:从Company映射到CompanyFullDto
+            CreateMap<Company, CompanyFullDto> ();
+            //创建资源 输入:从CompanyAddWithBankruptTimeDto映射到实体Company
+            CreateMap<CompanyAddWithBankruptTimeDto, Company> ();
         }
     }
 }

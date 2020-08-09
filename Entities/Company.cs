@@ -9,6 +9,7 @@ namespace aspnetcore3_demo.Entities {
         public string Product { get; set; }
         public string Name { get; set; }
         public string Introduction { get; set; }
+        public DateTime? BankrupTime { get; set; }
         public ICollection<Employee> Employees { get; set; }
     }
 }

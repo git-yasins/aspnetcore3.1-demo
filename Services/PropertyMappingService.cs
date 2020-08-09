@@ -33,7 +33,8 @@ namespace aspnetcore3_demo.Services {
             { "Country", new PropertyMappingValue (new List<string> { "Country" }) },
             { "Industry", new PropertyMappingValue (new List<string> { "Industry" }) },
             { "Product", new PropertyMappingValue (new List<string> { "Product" }) },
-            { "Introduction", new PropertyMappingValue (new List<string> { "Introduction" }) }
+            { "Introduction", new PropertyMappingValue (new List<string> { "Introduction" }) },
+            { "BankrupTime", new PropertyMappingValue (new List<string> { "BankrupTime" }) }
         };
 
         private IList<IPropertyMapping> _propertyMappings = new List<IPropertyMapping> ();

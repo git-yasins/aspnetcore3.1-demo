@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using aspnetcore3_demo.Data;
 
 namespace aspnetcore3_demo.Migrations
 {
     [DbContext(typeof(RoutineDBContext))]
-    partial class RoutineDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200809162942_company_add_BankrupTime_property")]
+    partial class company_add_BankrupTime_property
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

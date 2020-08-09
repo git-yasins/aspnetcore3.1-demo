@@ -1,11 +1,13 @@
 using System;
 using System.IO;
+using System.Linq;
 using aspnetcore3_demo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,9 +32,10 @@ namespace aspnetcore3._1_demo {
             //注册对象属性映射服务
             services.AddTransient<IPropertyMappingService, PropertyMappingService> ();
             //数据塑形字段检查
-            services.AddTransient<IPropertyCheckService,PropertyCheckService>();
+            services.AddTransient<IPropertyCheckService, PropertyCheckService> ();
             //Dto-Model 映射
             services.AddAutoMapper (AppDomain.CurrentDomain.GetAssemblies ());
+
             services.AddControllers (options => {
                     //如果请求的内容为不支持的格式(xml),则返回406
                     options.ReturnHttpNotAcceptable = true;
@@ -61,6 +64,12 @@ namespace aspnetcore3._1_demo {
                         };
                     };
                 });
+
+            //为webapi的headers-Accept参数添加自定义全局mediaType 处理
+            services.Configure<MvcOptions> (config => {
+                var newtonSoftJsonOutputFormatter = config.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter> ()?.FirstOrDefault ();
+                newtonSoftJsonOutputFormatter?.SupportedMediaTypes.Add ("application/vnd.company.hateoas+json");
+            });
 
             //swagger
             services.AddSwaggerGen (options => {

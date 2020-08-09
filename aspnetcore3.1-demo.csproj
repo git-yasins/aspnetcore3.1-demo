@@ -5,7 +5,7 @@
     <RootNamespace>aspnetcore3_demo</RootNamespace>
     <!-- <GenerateDocumentationFile>true</GenerateDocumentationFile> -->
      <DocumentationFile>bin\Debug\netcoreapp3.1\aspnetcore3_demo.xml</DocumentationFile>
-    <NoWarn>$(NoWarn);1591;1711:1572;1587</NoWarn>
+    <NoWarn>$(NoWarn);1591;1711:1572;1587;CS1573;</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
