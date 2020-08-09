@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using aspnetcore3_demo.Entities;
 using Microsoft.EntityFrameworkCore;
-namespace aspnetcore3_demo.Data {
+namespace aspnetcore3_demo.Data
+{
     public class RoutineDBContext : DbContext {
         public RoutineDBContext (DbContextOptions<RoutineDBContext> options) : base (options) {
 

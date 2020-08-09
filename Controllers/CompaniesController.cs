@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -53,20 +55,24 @@ namespace aspnetcore3_demo.Controllers {
         /// <param name="companyId">公司ID</param>
         /// <param name="fields">数据塑形字段</param>
         /// <returns></returns>
-        public async Task<ActionResult<CompanyDto>> GetCompany (Guid companyId, [FromQuery (Name = "fields")] string field) {
+        public async Task<IActionResult> GetCompany (Guid companyId, [FromQuery] string fields) {
             var exists = await companyRepository.CompanyExistsAsync (companyId);
             if (!exists) {
                 return NotFound ();
             }
-            if (!propertyCheckService.TypeHasProperties<CompanyDto> (field)) {
+            if (!propertyCheckService.TypeHasProperties<CompanyDto> (fields)) {
                 return BadRequest ();
             }
             var company = await companyRepository.GetCompanyAsync (companyId);
             if (company == null) {
                 return NotFound ();
             }
-            var companydto = mapper.Map<CompanyDto> (company);
-            return Ok (companydto.ShapeData (field));
+
+            var links = CreateLinksForCompany (companyId, fields);
+            var linkedDict = mapper.Map<CompanyDto> (company).ShapeData (fields) as IDictionary<string, object>;
+            linkedDict.Add ("links", links);
+
+            return Ok (linkedDict);
         }
 
         /// <summary>
@@ -103,7 +109,23 @@ namespace aspnetcore3_demo.Controllers {
             ));
 
             var companyDtos = mapper.Map<IEnumerable<CompanyDto>> (companies);
-            return Ok (companyDtos.ShapeData (parameters.Fields));
+
+            //create
+            var links = CreateLinksForCompany (parameters, companies.HasPrevious, companies.HasNext);
+            var shapedData = companyDtos.ShapeData (parameters.Fields);
+            //遍历为每集合的每条数据创建LINK
+            var shapedCompaniesWithLinks = shapedData.Select (c => {
+                var companyDict = c as IDictionary<string, object>;
+                var companyLinks = CreateLinksForCompany ((Guid) companyDict["Id"], null);
+                companyDict.Add ("links", companyLinks);
+                return companyDict;
+            });
+            //links {value:[xxx,xxx],links}
+            var linkedCollectionResource = new {
+                value = shapedCompaniesWithLinks,
+                links
+            };
+            return Ok (linkedCollectionResource);
         }
 
         /// <summary>
@@ -111,13 +133,18 @@ namespace aspnetcore3_demo.Controllers {
         /// </summary>
         /// <param name="company">公司信息对象</param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost (Name = nameof (CreateCompany))]
         public async Task<ActionResult<CompanyDto>> CreateCompany ([FromBody] CompanyAddDto company) {
             var entity = mapper.Map<Company> (company);
             companyRepository.AddCompany (entity);
             await companyRepository.SaveAsync ();
             var ResultDto = mapper.Map<CompanyDto> (entity);
-            return CreatedAtRoute (nameof (GetCompany), new { companyId = ResultDto.Id }, ResultDto);
+
+            var links = CreateLinksForCompany (ResultDto.Id, null);
+            var linkedDict = ResultDto.ShapeData (null) as IDictionary<string, object>;
+            linkedDict.Add ("links", links);
+
+            return CreatedAtRoute (nameof (GetCompany), new { companyId = linkedDict["Id"] }, linkedDict);
         }
 
         /// <summary>
@@ -137,7 +164,7 @@ namespace aspnetcore3_demo.Controllers {
         /// </summary>
         /// <param name="companyId">公司ID</param>
         /// <returns>statusCode 204</returns>
-        [HttpDelete ("{companyId}")]
+        [HttpDelete ("{companyId}", Name = nameof (DeleteCompany))]
         public async Task<IActionResult> DeleteCompany (Guid companyId) {
             var companyEntity = await companyRepository.GetCompanyAsync (companyId);
 
@@ -146,7 +173,7 @@ namespace aspnetcore3_demo.Controllers {
             }
 
             //查询employee到dbContext进行追踪,以便根据父表删除子表数据
-            await companyRepository.GetEmployeesAsync (companyId, new EmployeeDtoParameters ());
+            await companyRepository.GetEmployeesAsync (companyId, null);
 
             companyRepository.DeleteCompany (companyEntity);
             await companyRepository.SaveAsync ();
@@ -189,6 +216,51 @@ namespace aspnetcore3_demo.Controllers {
                     companyName = parameters.CompanyName,
                     search = parameters.Search
             });
+        }
+
+        /// <summary>
+        /// 生成单个资源 HATEOAS 链接
+        /// </summary>
+        /// <param name="companyId">公司ID</param>
+        /// <param name="fields">指定CompanyDto返回的字段</param>
+        /// <returns></returns>
+        private IEnumerable<LinkDto> CreateLinksForCompany (Guid companyId, string fields) {
+
+            var links = new List<LinkDto> ();
+            links.Add (new LinkDto (
+                Url.Link (nameof (GetCompany), string.IsNullOrWhiteSpace (fields) ? new { companyId, fields } : new { companyId, fields }),
+                "self",
+                "GET"));
+            links.Add (new LinkDto (
+                Url.Link (nameof (GetCompany), new { companyId }),
+                "delete_company",
+                "DELETE"));
+            links.Add (new LinkDto (
+                Url.Link (nameof (EmployeesController.CreateEmployeeForCompany), new { companyId }),
+                "create_employee_for_company",
+                "POST"));
+            links.Add (new LinkDto (
+                Url.Link (nameof (EmployeesController.GetEmployeesForCompany), new { companyId }),
+                "get_employees_for_company",
+                "GET"
+            ));
+            return links;
+        }
+        /// <summary>
+        /// 生成多个资源 HATEOAS 链接
+        ///  </summary>
+        /// <param name="companyDtoParameters"></param>
+        /// <param name="hasPrevious">是否存在上一页</param>
+        /// <param name="hasNext">是否存在下一页</param>
+        /// <returns></returns>
+        private IEnumerable<LinkDto> CreateLinksForCompany (CompanyDtoParameters companyDtoParameters, bool hasPrevious, bool hasNext) {
+            var links = new List<LinkDto> ();
+            links.Add (new LinkDto (CreateLink (companyDtoParameters, ResourceUriType.Default), "self", "GET"));
+            if (hasPrevious)
+                links.Add (new LinkDto (CreateLink (companyDtoParameters, ResourceUriType.PriviousPage), "previous_page", "GET"));
+            if (hasNext)
+                links.Add (new LinkDto (CreateLink (companyDtoParameters, ResourceUriType.NextPage), "next_page", "GET"));
+            return links;
         }
     }
 }

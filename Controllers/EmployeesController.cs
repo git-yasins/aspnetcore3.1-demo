@@ -33,8 +33,8 @@ namespace aspnetcore3_demo.Controllers {
         /// <param name="companyId">公司ID</param>
         /// <param name="parameters">查询条件</param>
         /// <returns></returns>
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployeesForCompany (Guid companyId, [FromQuery]EmployeeDtoParameters parameters) {
+        [HttpGet(Name=nameof(GetEmployeesForCompany))]
+        public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployeesForCompany (Guid companyId, [FromQuery] EmployeeDtoParameters parameters) {
             if (!await companyRepository.CompanyExistsAsync (companyId)) {
                 return NotFound ();
             }
@@ -67,7 +67,7 @@ namespace aspnetcore3_demo.Controllers {
         /// <param name="companyId">公司ID</param>
         /// <param name="employee">员工对象</param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost (Name = nameof (CreateEmployeeForCompany))]
         public async Task<ActionResult<EmployeeDto>> CreateEmployeeForCompany (Guid companyId, EmployeeAddDto employee) {
             if (!await companyRepository.CompanyExistsAsync (companyId)) {
                 return NotFound ();
