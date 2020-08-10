@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using aspnetcore3_demo.Entities;
 using aspnetcore3_demo.Models;
 using aspnetcore3_demo.Parameters;
 using aspnetcore3_demo.Services;
 using AutoMapper;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +18,10 @@ namespace aspnetcore3_demo.Controllers {
     /// 员工api
     /// </summary>
     [ApiController]
+    //[ResponseCache (CacheProfileName = "selfCacheProfile120")]//120S缓存
     [Route ("api/companies/{companyId}/employees")]
+    [HttpCacheExpiration (CacheLocation = CacheLocation.Public)]
+    [HttpCacheValidation (MustRevalidate = true)]
     public class EmployeesController : ControllerBase {
         private readonly ICompanyRepository companyRepository;
         private readonly IMapper mapper;
@@ -33,7 +38,7 @@ namespace aspnetcore3_demo.Controllers {
         /// <param name="companyId">公司ID</param>
         /// <param name="parameters">查询条件</param>
         /// <returns></returns>
-        [HttpGet(Name=nameof(GetEmployeesForCompany))]
+        [HttpGet (Name = nameof (GetEmployeesForCompany))]
         public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployeesForCompany (Guid companyId, [FromQuery] EmployeeDtoParameters parameters) {
             if (!await companyRepository.CompanyExistsAsync (companyId)) {
                 return NotFound ();
@@ -49,6 +54,10 @@ namespace aspnetcore3_demo.Controllers {
         /// <param name="employeeId">员工ID</param>
         /// <returns></returns>
         [HttpGet ("{employeeId}", Name = nameof (GetEmployeeForCompany))]
+        //[ResponseCache (Duration = 60)]
+        //非全局缓存
+        [HttpCacheExpiration (CacheLocation = CacheLocation.Public, MaxAge = 1800)]
+        [HttpCacheValidation (MustRevalidate = false)]
         public async Task<ActionResult<EmployeeDto>> GetEmployeeForCompany (Guid companyId, Guid employeeId) {
             if (!await companyRepository.CompanyExistsAsync (companyId)) {
                 return NotFound ();

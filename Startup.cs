@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using aspnetcore3_demo.Services;
 using AutoMapper;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +30,18 @@ namespace aspnetcore3._1_demo {
             services.AddDbContext<aspnetcore3_demo.Data.RoutineDBContext> (option => {
                 option.UseSqlite (Configuration["ConnectionStrings:Default"]);
             });
+
+            //添加缓存
+            //marvin.cache.headers中间件
+            services.AddHttpCacheHeaders (expires => {
+                expires.MaxAge = 60;
+                expires.CacheLocation = CacheLocation.Private;
+            }, validation => { //缓存验证模型
+                validation.MustRevalidate = true;
+            });
+            //系统
+            services.AddResponseCaching ();
+
             //注册对象属性映射服务
             services.AddTransient<IPropertyMappingService, PropertyMappingService> ();
             //数据塑形字段检查
@@ -43,6 +56,11 @@ namespace aspnetcore3._1_demo {
                     //options.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
                     //默认输出XML
                     //options.OutputFormatters.Insert(0,new XmlDataContractSerializerOutputFormatter());
+                    //配置缓存
+                    options.CacheProfiles.Add ("selfCacheProfile120",
+                        new CacheProfile {
+                            Duration = 120
+                        });
                 })
                 .AddNewtonsoftJson (setup => { //添加[patch]局部更新JSON序列化  JsonPatchDocument 支持
                     //串行化设置
@@ -109,6 +127,10 @@ namespace aspnetcore3._1_demo {
                     });
                 });
             }
+
+            //使用缓存
+            app.UseResponseCaching ();
+            app.UseHttpCacheHeaders ();
 
             app.UseSwagger ();
             app.UseSwaggerUI (c => {
