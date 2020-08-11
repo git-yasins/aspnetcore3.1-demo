@@ -37,6 +37,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
+            @await Component.InvokeAsync("Counter");
             &copy; 2020 - aspnetcore3_demo - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>

@@ -1,0 +1,33 @@
+#############docker command
+#下载redis镜像
+docker pull Redis
+#创建启动redis容器
+docker run --name asp_redis -it -p 6379:6379 redis
+#进入redis命令行
+docker exec -it asp_redis redis-cli
+#查看密码 config get requirepass 默认为""
+#设置密码 config set requirepass 12345678
+##########redis string 操作
+
+1.设置KEY set命令 set key value
+set firstName Dave  |  set fullName "Michael Jackson"
+2.获取KEY get命令 get key
+get firstName
+3.getset key newValue
+getset fullName "newValue"
+4.自增 incr key 自减: decr key 和自增相反
+set age 10
+incr age --自增默认+1为11
+incrby age 3 --设置自增幅度为3 结果为 11+3 = 14
+5.mset key value key value key value 批量设置键值对
+mset country China province Guangdong city Shenzhen
+#根据键获取值: get country
+             get province
+             get city
+6.mget key key key 批量通过KEY获取VALUE
+ mget country province city
+7.exists key 检查KEY是否存在,不存在返回0
+8.del key| del key key key 删除
+9.type key 获取值类型
+10.expire key 5 设置key的有效期为5秒 | set key value ex 8 设置键值时同时设置key的有效期为8秒
+11.ttl key 获取过期剩于时间 对于没有设置有效期并且存在的返回-1,过期的或不存在的KEY返回-2
