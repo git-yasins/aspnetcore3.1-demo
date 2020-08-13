@@ -1,0 +1,16 @@
+
+docker pull redis #下载DOCKER
+docker images #查看本地所有镜像
+docker push self-redis #提交本地镜像到仓库
+docker ps #查看运行的容器
+docker ps -a #查看没有运行的容器
+
+#运行容器
+docker run -d -p 6379:6379 --name redis01 redis
+-p(point) #内部端口映射外部端口
+-d(detach) #分离运行 在后台运行,不阻止当前命令行,可以继续操作
+
+#重新运行停止的docker镜像 ,可以是镜像名,也可以是IMAGE ID(可以指定前几位数字,不用写全)
+#docker start redis
+#停止已经运行的镜像
+#docker stop redis
