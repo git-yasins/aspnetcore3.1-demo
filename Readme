@@ -21,5 +21,14 @@ docker stop redis
 
 docker rm mysql #删除容器
 
+#重启docker的系统服务
+service docker restart
+
+#阿里云服务器配置
+https://www.cnblogs.com/zhaoxusheng/p/5410467.html
+
+linux开启端口
+https://www.cnblogs.com/rxbook/p/8110143.html
+
 centos7安装docker
 https://help.aliyun.com/document_detail/51853.html?spm=5176.10695662.1996646101.searchclickresult.6afa1666yqsfY3
