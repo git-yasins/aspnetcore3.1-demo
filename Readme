@@ -13,4 +13,13 @@ docker run -d -p 6379:6379 --name redis01 redis
 #重新运行停止的docker镜像 ,可以是镜像名,也可以是IMAGE ID(可以指定前几位数字,不用写全)
 #docker start redis
 #停止已经运行的镜像
-#docker stop redis
+docker stop redis
+#进入mysql命令行
+1.docker exec -it b469(ImageId) bash
+2.mysql -u root -p
+3.password
+
+docker rm mysql #删除容器
+
+centos7安装docker
+https://help.aliyun.com/document_detail/51853.html?spm=5176.10695662.1996646101.searchclickresult.6afa1666yqsfY3
