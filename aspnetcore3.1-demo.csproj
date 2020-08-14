@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>aspnetcore3_demo</RootNamespace>
+    <!-- <GenerateDocumentationFile>true</GenerateDocumentationFile> -->
+     <DocumentationFile>bin\Debug\netcoreapp3.1\aspnetcore3_demo.xml</DocumentationFile>
+    <NoWarn>$(NoWarn);1591;1711:1572;1587;CS1573;</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="marvin.cache.headers" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="3.1.6" />
+    <PackageReference Include="Microsoft.AspNetCore.MVC.NewtonsoftJson" Version="3.1.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.6">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.0" />
+  </ItemGroup>
+
+
+</Project>
