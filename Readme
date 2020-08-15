@@ -1,3 +1,4 @@
+yum install -y docker-ce
 
 docker pull redis #下载DOCKER
 docker images #查看本地所有镜像
@@ -40,6 +41,19 @@ https://help.aliyun.com/document_detail/51853.html?spm=5176.10695662.1996646101.
 #mysql 安装与配置
 https://www.cnblogs.com/starof/p/4680083.html
 https://www.cnblogs.com/geogre123/p/10342486.html
+docker pull mysql/mysql-server
+docker run -d -p 3306:3306 --name mysql01 mysql/mysql-server
+docker logs mysql01
+docker exec -it bash
+mysql -u root -p
+ALTER USER 'root'@'localhost' IDENTYFIED WITH mysql_native_password BY 'newPassWord';
+//创建用户并授权
+CREATE USER 'yasin'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'yasin'@'localhost' WITH GRANT OPTION;
+#设置用户可以任意连接
+CREATE USER 'yasin'@'%' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'yasin'@'%' WITH GRANT OPTION;
+
 
 #centos 安装 netcore
 https://www.cnblogs.com/esofar/p/8043792.html
