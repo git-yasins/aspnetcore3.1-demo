@@ -1,0 +1,122 @@
+#centos7安装docker
+yum install -y docker-ce
+https://www.cnblogs.com/Chan94/p/10661648.html
+https://help.aliyun.com/document_detail/51853.html?spm=5176.10695662.1996646101.searchclickresult.6afa1666yqsfY3
+https://www.runoob.com/docker/docker-tutorial.html
+
+#docker push
+docker tag yasin/webapi:test yasin2020/webapi:test
+
+yasin/webapi:test //镜像名:TAG名
+yasin2020/webapi:test //docker用户名/上传后的镜像名:TAG名
+
+#运行容器
+docker run -d -p 6379:6379 --name redis01 redis
+-p(point) #内部端口映射外部端口
+-d(detach) #分离运行 在后台运行,不阻止当前命令行,可以继续操作
+
+#进入mysql命令行
+1.docker exec -it b469(ImageId) bash
+2.mysql -u root -p
+3.password
+
+#删除容器
+docker rm mysql
+#删除镜像
+docker rmi mysql/mysql-server
+
+#docker打包
+
+
+#重启docker的系统服务
+service docker restart
+
+#阿里云服务器配置
+https://www.cnblogs.com/zhaoxusheng/p/5410467.html
+#centos7 开启端口
+https://www.cnblogs.com/rxbook/p/8110143.html
+#端口和防火墙配置
+https://www.cnblogs.com/heqiuyong/p/10460150.html
+https://www.cnblogs.com/l-hh/p/11213506.html
+
+#DOCKER外部文件挂载卷
+#volumn 方式(单机)
+#mysql
+docker run -d -p 3306:3306 --name mysql01 -v=/document/docker/mysql/config/my.cnf:/etc/my.cnf -v=/document/docker/mysql/data:/var/lib/mysql mysql/mysql-server
+#mongodb
+docker run -d -p 27017:27017 --name mongo01 -v=/document/docker/mongo/config:/data/configdb -v=/document/docker/mongo/db:/data/db mongo
+vi my.cnf
+[sqld]
+user=mysql
+
+参数解释
+#-d 分离模式,不占用控制台 从内部3306映射到外部3306端口 --name 容器别名
+docker run -d -p 3306:3306 --name mysql01
+冒号前面的目录为LINUX本地文件系统目录,后边为docker容器内部的文件目录
+#mysql配置文件目录映射,需在/目录下,不是~
+-volume=/docuement/docker/mysql/config/my.cnf:/etc/my.cnf
+#mysql数据文件存储目录映射
+-volume=/docuement/docuement/mysql/data:/var/lib/mysql
+#要启动的镜像名
+mysql/mysql-server
+#mount(单机,集群)
+
+#mysql 安装与配置
+https://www.cnblogs.com/starof/p/4680083.html
+https://www.cnblogs.com/geogre123/p/10342486.html
+docker pull mysql/mysql-server
+docker run -d -p 3306:3306 --name mysql01 mysql/mysql-server
+docker logs mysql01
+docker exec -it bash
+mysql -u root -p
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+//创建用户并授权
+CREATE USER 'yasin'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'yasin'@'localhost' WITH GRANT OPTION;
+#设置用户可以任意连接
+CREATE USER 'yasin'@'%' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'yasin'@'%' WITH GRANT OPTION;
+#设置字符集
+yum install vim
+vim /etc/my.cnf
+[mysqld]
+character-set-server=utf8
+[client]
+default-character-set=utf8
+[mysql]
+default-character-set=utf8
+
+#centos 安装 netcore
+https://www.cnblogs.com/esofar/p/8043792.html
+
+#linux docker部署gitlab本地代码仓库
+https://blog.csdn.net/weixin_38287709/article/details/103314136
+https://www.clxz.top/2019/03/31/111040/
+
+#docker运行gitlabwgwy
+sudo docker run --detach \
+    --hostname 182.92.70.45 \
+    --publish 80:80 \
+    --name gitlab \
+    --restart always \
+    --volume /srv/gitlab/config:/etc/gitlab \
+    --volume /srv/gitlab/logs:/var/log/gitlab \
+    --volume /srv/gitlab/data:/var/opt/gitlab \
+    gitlab/gitlab-ce:latest
+
+#详细说明
+sudo docker run --detach \
+  --publish 443:443 --publish 80:80 --publish 22:22 \ # 本地端口的映射
+  --name gitlab \     # gitlab-ce 的镜像运行成为一个容器，这里是对容器的命名
+  --restart always \  # 设置重启方式，always 代表一直开启，服务器开机后也会自动开启的
+  --volume /project/gitlab/config:/etc/gitlab \   # 将 gitlab 的配置文件目录映射到 /srv/gitlab/config 目录中
+  --volume /project/gitlab/logs:/var/log/gitlab \ # 将 gitlab 的log文件目录映射到 /srv/gitlab/logs 目录中
+  --volume /project/gitlab/data:/var/opt/gitlab \ # 将 gitlab 的数据文件目录映射到 /srv/gitlab/data 目录中
+  docker.io/gitlab/gitlab-ce:latest  # 需要运行的镜像
+
+
+  #docker 运行jekins
+docker run -itd -p 8080:8080 --name jenkins --privileged=true  -v /home/jenkins:/var/jenkins_home jenkins:latest
+firewall-cmd --permanent --zone=home --add-forward-port=port=8080:proto=tcp:toaddr=0.0.0.0
+
+
