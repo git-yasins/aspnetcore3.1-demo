@@ -2,6 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using aspnetcore3_demo.Services;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Autofac.Extras.DynamicProxy;
 using AutoMapper;
 using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Builder;
@@ -26,7 +29,7 @@ namespace aspnetcore3._1_demo {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices (IServiceCollection services) {
-            services.AddScoped<ICompanyRepository, CompanyRepository> ();
+            //  services.AddScoped<ICompanyRepository, CompanyRepository> ();
             services.AddDbContext<aspnetcore3_demo.Data.RoutineDBContext> (option => {
                 option.UseSqlite (Configuration["ConnectionStrings:Default"]);
             });
@@ -113,7 +116,7 @@ namespace aspnetcore3._1_demo {
                 options.ResolveConflictingActions (c => c.First ()); //解决同类型Action或重载的错误
             });
         }
-
+        public ILifetimeScope AutofacContainer { get; private set; }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure (IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.IsDevelopment ()) {
@@ -127,6 +130,31 @@ namespace aspnetcore3._1_demo {
                     });
                 });
             }
+
+            #region Autofac test
+            //获取命名注册的容器服务
+            //var service = this.AutofacContainer.ResolveNamed<ICompanyRepository> ("company");
+
+            //获取没有命名的实例
+            //var service = AutofacContainer.Resolve<ICompanyRepository>();
+
+            //获取属性注册的实例
+            // this.AutofacContainer = app.ApplicationServices.GetAutofacRoot();
+            // var serviceName = this.AutofacContainer.Resolve<ICompanyRepository>();
+            // serviceName.GetCompanyAsync(Guid.Parse("19d42960-7635-4360-b25a-76f65793f352"));
+
+            //获取子容器
+            // this.AutofacContainer = app.ApplicationServices.GetAutofacRoot();
+            // using (var myscope = AutofacContainer.BeginLifetimeScope ("myscope")) {
+            //     var service0 = myscope.Resolve<CompanyRepository> ();
+            //     using (var scope = myscope.BeginLifetimeScope ()) {
+            //         var service1 = scope.Resolve<CompanyRepository> ();
+            //         var service2 = scope.Resolve<CompanyRepository> ();
+            //         System.Console.WriteLine ($"service1=service2:{service1 == service2}");
+            //         System.Console.WriteLine ($"service1=service0:{service1 == service0}");
+            //     }
+            // }
+            #endregion
 
             //使用缓存
             app.UseResponseCaching ();
@@ -147,6 +175,32 @@ namespace aspnetcore3._1_demo {
             app.UseEndpoints (endpoints => {
                 endpoints.MapControllers ();
             });
+        }
+
+        /// <summary>
+        /// AutoFac 容器实例注册
+        /// </summary>
+        /// <param name="builder"></param>
+        public void ConfigureContainer (ContainerBuilder builder) {
+            builder.RegisterType<CompanyRepository> ().As<ICompanyRepository> ();
+
+            //属性注册
+            //builder.RegisterType<PropertyCheckService> ().As<IPropertyCheckService> ().PropertiesAutowired ();
+
+            //命名注册
+            //builder.RegisterType<CompanyRepository> ().Named<ICompanyRepository> ("company");
+
+            //AOP
+            //注册拦截器
+            //builder.RegisterType<MyInterceptor> ();
+            //注册被拦截的实例
+            // builder.RegisterType<CompanyRepository> ().As<ICompanyRepository> () //被拦截的实例
+            // .PropertiesAutowired () //属性注入
+            //    .InterceptedBy (typeof (MyInterceptor)) //拦截时注入的内容
+            //   .EnableInterfaceInterceptors (); //接口拦截器
+
+            //将实例注册到子容器
+            //builder.RegisterType<CompanyRepository> ().InstancePerMatchingLifetimeScope ("myscope");
         }
     }
 }

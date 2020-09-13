@@ -1,5 +1,6 @@
 using System;
 using aspnetcore3_demo.Data;
+using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,7 @@ namespace aspnetcore3._1_demo {
 
         public static IHostBuilder CreateHostBuilder (string[] args) =>
             Host.CreateDefaultBuilder (args)
+            .UseServiceProviderFactory (new AutofacServiceProviderFactory ())//使用AUTOFAC
             .ConfigureWebHostDefaults (webBuilder => {
                 webBuilder.UseStartup<Startup> ();
             });
