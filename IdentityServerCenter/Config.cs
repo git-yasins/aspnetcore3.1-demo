@@ -2,13 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
-namespace IdentityServerCenter {
-    public class Config {
-        public static IEnumerable<ApiResource> GetResource () {
-            return new List<ApiResource> { new ApiResource ("api", "My Api") };
+namespace IdentityServerCenter
+{
+    public class Config
+    {
+        public static IEnumerable<ApiResource> GetResource()
+        {
+            return new List<ApiResource> { new ApiResource("api", "My Api") };
         }
 
-        public static IEnumerable<Client> GetClients () {
+        public static IEnumerable<Client> GetClients()
+        {
             return new List<Client> {
                 new Client () {
                     ClientId = "client", //客户端模式
@@ -28,7 +32,8 @@ namespace IdentityServerCenter {
             };
         }
 
-        public static List<TestUser> GetTestUsers () {
+        public static List<TestUser> GetTestUsers()
+        {
             return new List<TestUser> {
                 new TestUser {
                     SubjectId = "1",
